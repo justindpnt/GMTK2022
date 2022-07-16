@@ -6,13 +6,11 @@ public class Movement : MonoBehaviour
 {
     private Vector2 startingMousePosition;
     public float divisor = 100f;
-    public float speed = 1f;
-    public float movementForce = 1f;
-    public float angleIncrease = 1f;
-    public float maxTiltAngle = 45f;
-
     Quaternion tilt;
-    
+    public float maxXTiltAngle = 30;
+    public float maxYTiltAngle = 30;
+    public GameObject ball;
+    public float speed = 1f;
 
     // Start is called before the first frame update
     void Start()
@@ -24,38 +22,34 @@ public class Movement : MonoBehaviour
     void Update()
     {
         Vector2 newMousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-        Vector2 directionVector = (newMousePosition - startingMousePosition).normalized;
+        Vector2 directionVector = (startingMousePosition - newMousePosition);
 
-        Quaternion currrentQuaternion = transform.rotation;
-        Quaternion nextQuaternion = currrentQuaternion;
+        //Debug.Log(directionVector);
 
-        float possibleXAngleIcrease = -(directionVector.x * angleIncrease);
+        float xMovement = directionVector.x / divisor;
+        float yMovement = - (directionVector.y / divisor * 3);
 
-        Debug.Log(possibleXAngleIcrease);
-
-        //Mouse on right side of the screen
-        if(possibleXAngleIcrease < 0)
+        if (xMovement > maxXTiltAngle)
         {
-            if(currrentQuaternion.eulerAngles.z > -maxTiltAngle)
-            {
-                nextQuaternion = Quaternion.Euler(nextQuaternion.eulerAngles.x, nextQuaternion.eulerAngles.y, nextQuaternion.eulerAngles.z + possibleXAngleIcrease);
-            }
-            else
-            {
-                //do nothing, next quaternion is already fine
-            }
+            xMovement = maxXTiltAngle;
         }
-        //Mouse on the left side of the screen
-        else
+        if(xMovement < -maxXTiltAngle)
         {
-            Debug.Log("ANGLE IS :" + currrentQuaternion.eulerAngles.z);
-            Debug.Log("maxTiltIs : " + maxTiltAngle);
-            if(currrentQuaternion.eulerAngles.z -360 < maxTiltAngle)
-            {
-                nextQuaternion = Quaternion.Euler(nextQuaternion.eulerAngles.x, nextQuaternion.eulerAngles.y, nextQuaternion.eulerAngles.z + possibleXAngleIcrease);
-            }
+            xMovement = -maxXTiltAngle;
         }
-        tilt = nextQuaternion;
+        if(yMovement > maxYTiltAngle)
+        {
+            yMovement = maxYTiltAngle;
+        }
+        if(xMovement < -maxYTiltAngle)
+        {
+            yMovement = -maxYTiltAngle;
+        }
+
+
+        Debug.Log("x: " + xMovement + "y: " +  yMovement);
+
+        tilt = Quaternion.Euler(yMovement, 0, xMovement);
     }
 
     private void FixedUpdate()
